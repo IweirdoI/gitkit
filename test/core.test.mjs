@@ -252,8 +252,11 @@ test('registered worktrees are listed and removable with confirmation', async t 
   const created = await call('worktree', { action: 'create', path });
   assert.equal(created.ok, true, JSON.stringify(created));
   assert.equal((await call('worktree')).data.managed.length, 1);
-  assert.equal((await call('worktree', { action: 'remove', path })).error_code, 'confirmation_required');
-  const removed = await call('worktree', { action: 'remove', path, yes: true });
+  const removalPath = process.platform === 'win32'
+    ? path.replace(/^[A-Z]/, drive => drive.toLowerCase())
+    : path;
+  assert.equal((await call('worktree', { action: 'remove', path: removalPath })).error_code, 'confirmation_required');
+  const removed = await call('worktree', { action: 'remove', path: removalPath, yes: true });
   assert.equal(removed.ok, true, JSON.stringify(removed));
   assert.equal((await call('worktree')).data.managed.length, 0);
 });

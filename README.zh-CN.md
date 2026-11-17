@@ -9,11 +9,11 @@ GitKit 为人提供 Git 命令行，为 Agent 提供 stdio MCP 工具。两者�
 需要 **Node.js 22+**、**Git 2.39+**。管理大文件时安装 [Git LFS](https://git-lfs.com/)。
 
 ```sh
-npm install -g https://github.com/IweirdoI/gitkit/releases/download/v0.1.1/gitkit-agent-0.1.1.tgz
+npm install -g https://github.com/IweirdoI/gitkit/releases/download/v0.1.2/gitkit-agent-0.1.2.tgz
 gitkit --help
 ```
 
-npm 包名是 `gitkit-agent`。版本在 npm 可用后，可用 `npx gitkit-agent@0.1.1 --help` 直接运行，或用 `npm install -g gitkit-agent@0.1.1` 持久安装。[查看 npm 发布状态](https://www.npmjs.com/package/gitkit-agent)。
+npm 包名是 `gitkit-agent`。版本在 npm 可用后，可用 `npx gitkit-agent@0.1.2 --help` 直接运行，或用 `npm install -g gitkit-agent@0.1.2` 持久安装。[查看 npm 发布状态](https://www.npmjs.com/package/gitkit-agent)。
 
 ## 基本使用
 

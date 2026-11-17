@@ -9,11 +9,11 @@ A Git CLI for people and a stdio MCP server for agents. Both share one TypeScrip
 Requires **Node.js 22+** and **Git 2.39+**. Install [Git LFS](https://git-lfs.com/) for large-file workflows.
 
 ```sh
-npm install -g https://github.com/IweirdoI/gitkit/releases/download/v0.1.1/gitkit-agent-0.1.1.tgz
+npm install -g https://github.com/IweirdoI/gitkit/releases/download/v0.1.2/gitkit-agent-0.1.2.tgz
 gitkit --help
 ```
 
-The npm package name is `gitkit-agent`. Once the version is available on npm, run `npx gitkit-agent@0.1.1 --help` or install it with `npm install -g gitkit-agent@0.1.1`. [Check npm availability](https://www.npmjs.com/package/gitkit-agent).
+The npm package name is `gitkit-agent`. Once the version is available on npm, run `npx gitkit-agent@0.1.2 --help` or install it with `npm install -g gitkit-agent@0.1.2`. [Check npm availability](https://www.npmjs.com/package/gitkit-agent).
 
 ## Use it in a repository
 

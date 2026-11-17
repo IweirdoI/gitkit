@@ -43,7 +43,7 @@ args = ["/path/to/gitkit-agent/dist/cli.js", "mcp", "--cwd", "/path/to/repositor
 编辑 [MCP overlay](../.dsh/mcp.servers.yml) 后运行 `dsh web --patch .dsh/mcp.servers.yml`。也可装原生插件。准备 Harness 版本要求的 Node.js 和 pnpm。
 
 ```sh
-dsh plugin --profile web add https://github.com/IweirdoI/gitkit/releases/download/v0.1.1/gitkit-agent-0.1.1.tgz
+dsh plugin --profile web add https://github.com/IweirdoI/gitkit/releases/download/v0.1.2/gitkit-agent-0.1.2.tgz
 ```
 
 ## ChatGPT 和其他宿主

@@ -1,5 +1,5 @@
 import { lstat, readFile, realpath, rename, unlink, writeFile } from 'node:fs/promises';
-import { basename, dirname, resolve } from 'node:path';
+import { basename, dirname, relative, resolve } from 'node:path';
 import { randomUUID } from 'node:crypto';
 import { confirm, operand, Repo } from './context.js';
 import { attrs, lfsVersion, MiB, split, worktreeAssets } from './assets.js';
@@ -238,20 +238,27 @@ export const workflows = {
       }
       return repo.result('已创建独立工作树', entry);
     }
-    const index = registry.entries.findIndex(entry => entry.path === requested);
+    // Match the same filesystem path when Windows returns a different drive
+    // letter casing or the requested path uses an alias for its parent.
+    const canonical = await realpath(requested).catch(error => {
+      if (error.code === 'ENOENT' || error.code === 'ENOTDIR') return requested;
+      throw error;
+    });
+    const index = registry.entries.findIndex(entry => relative(entry.path, canonical) === '');
     if (index < 0) throw new GitError('invalid_input', '该工作树没有 GitKit 创建记录');
-    if (requested === repo.root) throw new GitError('invalid_input', '请从主工作树移除该工作树');
+    const { path } = registry.entries[index];
+    if (relative(repo.root, canonical) === '') throw new GitError('invalid_input', '请从主工作树移除该工作树');
     confirm(repo.options, '移除已登记的工作树');
-    const planned = repo.plan('移除工作树预演', { path: requested });
+    const planned = repo.plan('移除工作树预演', { path });
     if (planned) return planned;
-    if (await exists(requested)) {
-      const tree = new Repo({ ...repo.options, cwd: requested });
+    if (await exists(path)) {
+      const tree = new Repo({ ...repo.options, cwd: path });
       await tree.discover();
       await tree.clean();
       if (await tree.head() !== registry.entries[index].commit || tree.branch) throw new GitError('worktree_changed',
         '该工作树的提交或分支已变更', '确认提交已保存到持久分支后，再由 Git 手动移除该工作树。');
     }
-    await repo.write(['worktree', 'remove', '--', requested]);
+    await repo.write(['worktree', 'remove', '--', path]);
     registry.entries.splice(index, 1);
     await registry.save();
     return repo.result('已移除工作树');
