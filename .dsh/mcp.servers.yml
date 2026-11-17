@@ -1,0 +1,11 @@
+# Replace both paths with their absolute values.
+- insert:
+    - id: gitkit-mcp
+      name: '@deepseek-ai/dsh-mcp-client'
+      config:
+        transport: stdio
+        serverName: gitkit
+        command: node
+        args: ['/path/to/gitkit-agent/dist/cli.js', 'mcp', '--cwd', '/path/to/repository']
+        toolCallTimeoutMs: 180000
+        failOnStartupError: true

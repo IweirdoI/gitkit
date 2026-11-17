@@ -1,0 +1,14 @@
+node_modules/
+dist/
+.venv/
+__pycache__/
+*.tgz
+*.log
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+bench/initial-results.json
+bench/results.json
+bench/reproduction.json

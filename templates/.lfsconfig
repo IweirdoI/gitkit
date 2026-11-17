@@ -1,0 +1,4 @@
+# GitHub and Gitee normally discover the LFS endpoint from the Git remote.
+# Only enable an explicit URL when the team trusts and operates that endpoint.
+[lfs]
+    # url = https://git.example.com/owner/project.git/info/lfs

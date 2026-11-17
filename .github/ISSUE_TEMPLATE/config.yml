@@ -1,0 +1,5 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Private security report · 私下报告漏洞
+    url: https://github.com/IweirdoI/gitkit/security/advisories/new
+    about: Privately disclose a vulnerability · 通过私有通道提交安全问题

@@ -1,0 +1,4 @@
+- insert:
+    - name: gitkit-agent/cordis
+      id: gitkit
+      config: {}

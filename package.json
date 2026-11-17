@@ -1,0 +1,66 @@
+{
+  "name": "gitkit-agent",
+  "version": "0.1.1",
+  "description": "Git CLI and stdio MCP tools for GitHub and Gitee",
+  "type": "module",
+  "bin": {
+    "gitkit": "./dist/cli.js"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./cordis": "./dist/cordis.js"
+  },
+  "files": [
+    "dist",
+    "templates",
+    "docs",
+    ".dsh",
+    "dsh",
+    "src",
+    "README.zh-CN.md"
+  ],
+  "engines": {
+    "node": ">=22"
+  },
+  "keywords": [
+    "git",
+    "mcp",
+    "dsh-plugin",
+    "gitee",
+    "github"
+  ],
+  "dsh": {
+    "bundle": {
+      "patch": "./dsh/cordis.patch.yml"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "test": "npm run build && node --test test/*.test.mjs",
+    "prepack": "npm run build"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.29.0",
+    "zod": "^4.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "^5.9.0"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/IweirdoI/gitkit.git"
+  },
+  "homepage": "https://github.com/IweirdoI/gitkit#readme",
+  "bugs": {
+    "url": "https://github.com/IweirdoI/gitkit/issues"
+  },
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org",
+    "access": "public"
+  }
+}

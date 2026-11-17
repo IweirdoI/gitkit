@@ -1,0 +1,18 @@
+name: Bug report · 缺陷报告
+description: Report a reproducible problem · 报告可复现的问题
+labels: [bug]
+body:
+  - type: input
+    id: versions
+    attributes:
+      label: Versions and client · 版本和客户端
+      description: GitKit, Node.js, Git, OS and agent when applicable
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Steps, expected and actual behavior · 步骤、预期和结果
+      description: Include a minimal reproduction with secrets and personal paths removed.
+    validations:
+      required: true
