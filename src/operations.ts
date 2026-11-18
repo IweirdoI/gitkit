@@ -187,7 +187,10 @@ export const operations = {
       throw error;
     }
   },
-  async push(repo: Repo, args: { remote?: string; force?: boolean; noVerify?: boolean; pr?: boolean; base?: string; title?: string; body?: string; gitLimitMb?: number; lfsLimitMb?: number }) {
+  async push(repo: Repo, args: { remote?: string; force?: boolean; noVerify?: boolean; pr?: boolean; base?: string; title?: string; body?: string; baseRepo?: string; prOnly?: boolean; gitLimitMb?: number; lfsLimitMb?: number }) {
+    if ((args.prOnly || args.baseRepo) && !args.pr) throw new GitError('invalid_input', '--pr-only 和 --base-repo 需要 --pr');
+    if (args.prOnly && (args.force || args.noVerify)) throw new GitError('invalid_input', '--pr-only 不接受 --force 或 --no-verify');
+    if (args.baseRepo && !/^[\w.-]+\/[\w.-]+$/.test(args.baseRepo)) throw new GitError('invalid_input', '--base-repo 应为 owner/repo');
     const branch = repo.requireBranch();
     const [commit, upstream, configured, tracked] = await Promise.all([
       repo.head(),
@@ -206,16 +209,22 @@ export const operations = {
     const target = provider(urls[0]);
     const base = args.pr ? await checkBranch(repo, args.base) : undefined;
     if (args.pr && !target) throw new GitError('unsupported_provider', 'PR 目前支持 github.com 与 gitee.com');
-    if (base && destination === `refs/heads/${base}`) throw new GitError('invalid_input', 'PR 源分支与目标分支相同');
-    const planned = repo.plan('推送预演', { remote, destination, commit, force_with_lease: Boolean(args.force), pr_base: base, set_upstream: !upstream });
+    const crossFork = target && args.baseRepo && args.baseRepo.toLowerCase() !== `${target.owner}/${target.project}`.toLowerCase();
+    if (base && !crossFork && destination === `refs/heads/${base}`) throw new GitError('invalid_input', 'PR 源分支与目标分支相同');
+    const planned = repo.plan('推送预演', { remote, destination, commit, force_with_lease: Boolean(args.force),
+      pr_base: base, pr_base_repo: args.baseRepo, api_only: Boolean(args.prOnly), set_upstream: !args.prOnly && !upstream });
     if (planned) return planned;
     if (target && base && !(target.kind === 'github' ? process.env.GITHUB_TOKEN || process.env.GH_TOKEN : process.env.GITEE_TOKEN)) {
       throw new GitError('credentials_required', '缺少 PR API 凭据', '设置 GITHUB_TOKEN、GH_TOKEN 或 GITEE_TOKEN。');
     }
+    if (args.prOnly && target && base) {
+      const pr = await upsertPr(repo, target, destination.slice(11), base, args.title, args.body, args.baseRepo, commit);
+      return repo.result('已通过 API 同步 PR', { remote, destination, commit, upstream: upstream || null, pr, api_only: true });
+    }
     // Exclude only commits the actual push endpoint advertises and we have
     // locally. A stale tracking ref alone cannot prove an object is remote.
     const [advertised, available] = await Promise.all([
-      repo.output(['ls-remote', '--refs', '--heads', '--', urls[0]]),
+      repo.remoteRefs(['ls-remote', '--refs', '--heads', '--', urls[0]]).then(result => result.stdout.replace(/\r?\n$/, '')),
       repo.output(['for-each-ref', '--format=%(objectname)', 'refs/heads', 'refs/remotes']),
     ]);
     const refs = advertised.split('\n').map(line => line.split('\t'))
@@ -280,7 +289,7 @@ export const operations = {
     if (target && base) {
       try {
         return repo.result('已推送并同步 PR', { ...report, pr: await upsertPr(repo, target,
-          destination.slice(11), base, args.title, args.body) });
+          destination.slice(11), base, args.title, args.body, args.baseRepo) });
       } catch (error) {
         if (error instanceof GitError) throw new GitError(error.code, `分支已推送，PR 同步失败：${error.message}`, error.suggestion, error.detail);
         throw error;

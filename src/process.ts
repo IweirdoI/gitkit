@@ -94,6 +94,8 @@ export function classify(detail: string): GitError {
     [/dubious ownership|unsafe repository/i, 'unsafe_repository', '核实仓库所有者。确认信任后，在终端显式配置对应绝对路径的 safe.directory。'],
     [/index\.lock|cannot lock ref|packed-refs\.lock/i, 'index_lock', '等待其他 Git 任务结束。确认锁无持有者后，可用 doctor unlock 清理陈旧的 index.lock。'],
     [/gpg failed|signing failed|failed to sign|pinentry/i, 'signing_failed', '解锁签名代理后重试。若用户明确同意，使用 --unsigned --yes。'],
+    [/could not resolve host|couldn't resolve host|failed to connect|couldn't connect|connection (?:timed out|reset|refused)|recv failure|remote end hung up|RPC failed.*(?:curl|HTTP)|TLS.*(?:failed|error)/i,
+      'network_error', '检查网络、代理与远端地址。可重试只读连接探测；SSH 用户可核验 ssh.github.com:443。已推送的分支可用 push --pr-only 经 API 同步 PR。'],
     [/authentication failed|authorization failed|permission denied|could not read username|terminal prompts disabled|host key verification|publickey|invalid credentials|askpass|repository not found|cannot prompt|HTTP (401|403)/i, 'credentials_required', '配置 HTTPS credential helper 或预先解锁的 SSH agent，并确认仓库权限与 known_hosts。'],
     [/lfs.*(?:unsupported|not support|quota|bandwidth|batch response)|batch response/i, 'lfs_remote', '确认目标仓库支持 LFS、配额充足且当前凭据有权限。'],
     [/conflict|unmerged/i, 'conflict', '解决冲突后执行 integrate continue，或确认后执行 integrate abort。'],
