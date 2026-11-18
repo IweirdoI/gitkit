@@ -40,7 +40,7 @@ export const tools = {
     base: text('PR 目标分支'), title: text('PR 标题'), body: z.string().max(65536).describe('PR 正文，可传空字符串清除正文').optional(),
     gitLimitMb: count('普通 Git 对象上限（MiB）'), lfsLimitMb: count('LFS 单对象上限（MiB）'),
   }, all.push),
-  commit: define('提交 / 提交到本地。自动暂存、扫描密钥和大文件、生成规范说明。', {
+  commit: define('提交 / 提交到本地。自动暂存、扫描密钥和大文件、生成规范说明。成功返回分支、提交 ID 和实际 subject，无需再查 log。', {
     message, staged: flag('只提交已有暂存内容'), paths, noVerify, unsigned, thresholdMb,
   }, all.commit),
   branch: define('创建分支 / 切换分支 / 查看分支。默认 list。', {

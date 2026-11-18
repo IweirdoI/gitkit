@@ -95,6 +95,18 @@ test('configured signing failure requires an explicit unsigned retry', async t =
   assert.equal((await call('commit', { unsigned: true, yes: true })).ok, true);
   assert.equal(git(cwd, 'config', 'commit.gpgsign'), 'true');
 });
+test('commit returns the stored subject after a hook rewrites the requested message', async t => {
+  const { cwd, call } = await fixture(t);
+  const hook = join(cwd, '.git', 'hooks', 'commit-msg');
+  await writeFile(hook, '#!/bin/sh\nprintf "chore: verified by hook\\n" > "$1"\n');
+  await chmod(hook, 0o755);
+  await writeFile(join(cwd, 'draft.txt'), 'ready\n');
+  const result = await call('commit', { message: 'chore: requested' });
+  assert.equal(result.ok, true, JSON.stringify(result));
+  assert.equal(result.data.message, 'chore: requested');
+  assert.equal(result.data.subject, 'chore: verified by hook');
+  assert.equal(result.data.commit, git(cwd, 'rev-parse', 'HEAD'));
+});
 test('LFS uses an exact path rule and stages a pointer, doctor reports attributes', async t => {
   const { cwd, call } = await fixture(t);
   try { git(cwd, 'lfs', 'version'); } catch { t.skip('Git LFS unavailable'); return; }

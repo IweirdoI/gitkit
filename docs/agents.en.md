@@ -43,7 +43,7 @@ args = ["/path/to/gitkit-agent/dist/cli.js", "mcp", "--cwd", "/path/to/repositor
 Set the paths in the [MCP overlay](../.dsh/mcp.servers.yml), then use `dsh web --patch .dsh/mcp.servers.yml`. The native plugin can be installed with the following command. Use the Node.js version your Harness requires and have pnpm on PATH.
 
 ```sh
-dsh plugin --profile web add https://github.com/IweirdoI/gitkit/releases/download/v0.1.2/gitkit-agent-0.1.2.tgz
+dsh plugin --profile web add https://github.com/IweirdoI/gitkit/releases/download/v0.1.3/gitkit-agent-0.1.3.tgz
 ```
 
 ## ChatGPT and other hosts
