@@ -9,11 +9,11 @@ GitKit 为人提供 Git 命令行，为 Agent 提供 stdio MCP 工具。两者�
 需要 **Node.js 22+**、**Git 2.39+**。管理大文件时安装 [Git LFS](https://git-lfs.com/)。
 
 ```sh
-npm install -g https://github.com/IweirdoI/gitkit/releases/download/v0.1.2/gitkit-agent-0.1.2.tgz
+npm install -g https://github.com/IweirdoI/gitkit/releases/download/v0.1.3/gitkit-agent-0.1.3.tgz
 gitkit --help
 ```
 
-npm 包名是 `gitkit-agent`。版本在 npm 可用后，可用 `npx gitkit-agent@0.1.2 --help` 直接运行，或用 `npm install -g gitkit-agent@0.1.2` 持久安装。[查看 npm 发布状态](https://www.npmjs.com/package/gitkit-agent)。
+npm 包名是 `gitkit-agent`。版本在 npm 可用后，可用 `npx gitkit-agent@0.1.3 --help` 直接运行，或用 `npm install -g gitkit-agent@0.1.3` 持久安装。[查看 npm 发布状态](https://www.npmjs.com/package/gitkit-agent)。
 
 ## 基本使用
 
@@ -47,6 +47,8 @@ npm uninstall -g gitkit-agent
 DeepSeek Harness 原生插件用 `dsh plugin --profile web remove gitkit-agent`，其中 `web` 换成安装时的 profile。[各客户端卸载方法](docs/agents.md)。
 
 ## 实测对照
+
+0.1.3 的提交结果直接返回 Git 实际保存的标题，包含 hook 的修改，减少 Agent 再查日志的往返。新一轮与原生 Git 的 12 组配对中，四类任务整体总 token 少 35.38%，平均耗时少 16.02%；提交子任务总 token 少 55.92%，耗时少 37.86%。[完整结果与适用范围](bench/optimization-target-native.md)。
 
 ![GitKit 与原生 Git 的平均耗时和总 token](docs/assets/benchmark-zh.png)
 

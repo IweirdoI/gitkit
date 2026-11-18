@@ -1,0 +1,212 @@
+{
+  "model": "gpt-6.1-sol",
+  "reasoning": "low",
+  "transport": "HTTP",
+  "versions": {
+    "codex": "codex-cli 0.164.0",
+    "git": "git version 2.55.0.windows.3",
+    "node": "v22.16.0",
+    "gitkit": "0.1.2"
+  },
+  "referenceArm": "reference",
+  "startedAt": "2026-11-18T06:04:01.434Z",
+  "scenarios": [
+    {
+      "id": "commit",
+      "label": "暂存并提交",
+      "prompt": "把 draft.txt 的改动提交到当前分支，提交信息使用 chore: update draft。提交后告诉我分支名和实际提交信息。"
+    }
+  ],
+  "repeats": 3,
+  "parallelPairs": 1,
+  "results": [
+    {
+      "scenario": "commit",
+      "repeat": 1,
+      "arm": "gitkit",
+      "success": true,
+      "usage": {
+        "input_tokens": 62300,
+        "cached_input_tokens": 37888,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 166,
+        "reasoning_output_tokens": 0
+      },
+      "endToEndMs": 30598.1974,
+      "turnMs": 23509.4294,
+      "calls": [
+        {
+          "type": "mcp_tool_call",
+          "server": "gitkit",
+          "tool": "commit",
+          "elapsedMs": 1298.4408000000003,
+          "status": "completed"
+        }
+      ]
+    },
+    {
+      "scenario": "commit",
+      "repeat": 1,
+      "arm": "reference",
+      "success": true,
+      "usage": {
+        "input_tokens": 112285,
+        "cached_input_tokens": 72832,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 302,
+        "reasoning_output_tokens": 0
+      },
+      "endToEndMs": 42377.653699999995,
+      "turnMs": 35276.8491,
+      "calls": [
+        {
+          "type": "mcp_tool_call",
+          "server": "gitkit",
+          "tool": "status",
+          "elapsedMs": 216.07489999999962,
+          "status": "completed"
+        },
+        {
+          "type": "mcp_tool_call",
+          "server": "gitkit",
+          "tool": "diff",
+          "elapsedMs": 273.54699999999866,
+          "status": "completed"
+        },
+        {
+          "type": "mcp_tool_call",
+          "server": "gitkit",
+          "tool": "commit",
+          "elapsedMs": 1312.9227999999966,
+          "status": "completed"
+        },
+        {
+          "type": "mcp_tool_call",
+          "server": "gitkit",
+          "tool": "log",
+          "elapsedMs": 260.07570000000123,
+          "status": "completed"
+        }
+      ]
+    },
+    {
+      "scenario": "commit",
+      "repeat": 2,
+      "arm": "gitkit",
+      "success": true,
+      "usage": {
+        "input_tokens": 60211,
+        "cached_input_tokens": 36352,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 160,
+        "reasoning_output_tokens": 0
+      },
+      "endToEndMs": 21689.7537,
+      "turnMs": 20598.356,
+      "calls": [
+        {
+          "type": "mcp_tool_call",
+          "server": "gitkit",
+          "tool": "commit",
+          "elapsedMs": 1333.8840999999957,
+          "status": "completed"
+        }
+      ]
+    },
+    {
+      "scenario": "commit",
+      "repeat": 2,
+      "arm": "reference",
+      "success": true,
+      "usage": {
+        "input_tokens": 108514,
+        "cached_input_tokens": 83712,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 302,
+        "reasoning_output_tokens": 0
+      },
+      "endToEndMs": 31072.848599999998,
+      "turnMs": 29985.3327,
+      "calls": [
+        {
+          "type": "mcp_tool_call",
+          "server": "gitkit",
+          "tool": "status",
+          "elapsedMs": 224.5280000000057,
+          "status": "completed"
+        },
+        {
+          "type": "mcp_tool_call",
+          "server": "gitkit",
+          "tool": "diff",
+          "elapsedMs": 301.6334999999963,
+          "status": "completed"
+        },
+        {
+          "type": "mcp_tool_call",
+          "server": "gitkit",
+          "tool": "commit",
+          "elapsedMs": 1346.6062000000093,
+          "status": "completed"
+        },
+        {
+          "type": "mcp_tool_call",
+          "server": "gitkit",
+          "tool": "log",
+          "elapsedMs": 276.71540000000095,
+          "status": "completed"
+        }
+      ]
+    },
+    {
+      "scenario": "commit",
+      "repeat": 3,
+      "arm": "gitkit",
+      "success": false,
+      "endToEndMs": 17814.1299,
+      "turnMs": null,
+      "calls": [
+        {
+          "type": "mcp_tool_call",
+          "server": "gitkit",
+          "tool": "commit",
+          "elapsedMs": 1252.8257000000012,
+          "status": "completed"
+        }
+      ],
+      "error": "Expected values to be strictly equal:\n\n1 !== 0\n",
+      "error_code": "model_usage_limit"
+    },
+    {
+      "scenario": "commit",
+      "repeat": 3,
+      "arm": "reference",
+      "success": false,
+      "endToEndMs": 20836.27440000001,
+      "turnMs": null,
+      "calls": [
+        {
+          "type": "mcp_tool_call",
+          "server": "gitkit",
+          "tool": "status",
+          "elapsedMs": 202.8758999999991,
+          "status": "completed"
+        },
+        {
+          "type": "mcp_tool_call",
+          "server": "gitkit",
+          "tool": "diff",
+          "elapsedMs": 256.18039999999746,
+          "status": "completed"
+        }
+      ],
+      "error": "Expected values to be strictly equal:\n\n1 !== 0\n",
+      "error_code": "model_usage_limit"
+    }
+  ],
+  "finishedAt": "2026-11-18T06:05:50.343Z",
+  "comparison": {
+    "reference": "GitKit 0.1.2 unmodified",
+    "gitkit": "GitKit 0.1.2 plus commit subject result and description"
+  }
+}

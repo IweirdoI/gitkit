@@ -9,11 +9,11 @@ A Git CLI for people and a stdio MCP server for agents. Both share one TypeScrip
 Requires **Node.js 22+** and **Git 2.39+**. Install [Git LFS](https://git-lfs.com/) for large-file workflows.
 
 ```sh
-npm install -g https://github.com/IweirdoI/gitkit/releases/download/v0.1.2/gitkit-agent-0.1.2.tgz
+npm install -g https://github.com/IweirdoI/gitkit/releases/download/v0.1.3/gitkit-agent-0.1.3.tgz
 gitkit --help
 ```
 
-The npm package name is `gitkit-agent`. Once the version is available on npm, run `npx gitkit-agent@0.1.2 --help` or install it with `npm install -g gitkit-agent@0.1.2`. [Check npm availability](https://www.npmjs.com/package/gitkit-agent).
+The npm package name is `gitkit-agent`. Once the version is available on npm, run `npx gitkit-agent@0.1.3 --help` or install it with `npm install -g gitkit-agent@0.1.3`. [Check npm availability](https://www.npmjs.com/package/gitkit-agent).
 
 ## Use it in a repository
 
@@ -47,6 +47,8 @@ npm uninstall -g gitkit-agent
 For the DeepSeek Harness native plugin, use `dsh plugin --profile web remove gitkit-agent` with your profile name. [Removal by client](docs/agents.en.md).
 
 ## Benchmark
+
+The 0.1.3 commit response includes the actual stored subject, including hook changes, so agents can report it without another log call. A fresh 12-pair comparison against native Git found 35.38% fewer total tokens and 16.02% lower mean end-to-end time across four tasks. Commit alone used 55.92% fewer total tokens and 37.86% less time. [Full results and limits](bench/optimization-target-native.md).
 
 ![Average time and token usage for GitKit and native Git](docs/assets/benchmark-en.png)
 

@@ -1,0 +1,726 @@
+{
+  "model": "gpt-6.1-sol",
+  "reasoning": "low",
+  "transport": "HTTP",
+  "versions": {
+    "codex": "codex-cli 0.164.0",
+    "git": "git version 2.55.0.windows.3",
+    "node": "v22.16.0",
+    "gitkit": "0.1.2"
+  },
+  "referenceArm": "native",
+  "scenarios": [
+    {
+      "id": "status",
+      "label": "检查分支与改动",
+      "prompt": "查看当前分支、已暂存文件、未暂存的已跟踪文件和未跟踪文件。输出分支名以及三类文件名，用中文说明。只查询。"
+    },
+    {
+      "id": "commit",
+      "label": "暂存并提交",
+      "prompt": "把 draft.txt 的改动提交到当前分支，提交信息使用 chore: update draft。提交后告诉我分支名和实际提交信息。"
+    },
+    {
+      "id": "pull",
+      "label": "拉取本地远端",
+      "prompt": "从 origin 拉取当前分支的最新提交，要求只允许快进。成功后告诉我分支名和最新提交信息。"
+    },
+    {
+      "id": "push",
+      "label": "首次推送并设上游",
+      "prompt": "把当前分支首次推送到 origin，建立 upstream，然后告诉我当前分支名和完整 upstream 名称。"
+    }
+  ],
+  "repeats": 3,
+  "parallelPairs": 2,
+  "results": [
+    {
+      "scenario": "status",
+      "repeat": 1,
+      "arm": "native",
+      "success": true,
+      "usage": {
+        "input_tokens": 61092,
+        "cached_input_tokens": 37248,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 154,
+        "reasoning_output_tokens": 0
+      },
+      "endToEndMs": 26517.1082,
+      "turnMs": 19604.3973,
+      "calls": [
+        {
+          "type": "mcp_tool_call",
+          "server": "native",
+          "tool": "git",
+          "elapsedMs": 74.9948000000004,
+          "status": "completed"
+        }
+      ]
+    },
+    {
+      "scenario": "status",
+      "repeat": 1,
+      "arm": "gitkit",
+      "success": true,
+      "usage": {
+        "input_tokens": 62472,
+        "cached_input_tokens": 37888,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 170,
+        "reasoning_output_tokens": 0
+      },
+      "endToEndMs": 26873.031199999998,
+      "turnMs": 19987.127,
+      "calls": [
+        {
+          "type": "mcp_tool_call",
+          "server": "gitkit",
+          "tool": "status",
+          "elapsedMs": 214.10779999999795,
+          "status": "completed"
+        }
+      ]
+    },
+    {
+      "scenario": "commit",
+      "repeat": 1,
+      "arm": "gitkit",
+      "success": true,
+      "usage": {
+        "input_tokens": 62330,
+        "cached_input_tokens": 37888,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 161,
+        "reasoning_output_tokens": 0
+      },
+      "endToEndMs": 27524.264900000002,
+      "turnMs": 20649.4392,
+      "calls": [
+        {
+          "type": "mcp_tool_call",
+          "server": "gitkit",
+          "tool": "commit",
+          "elapsedMs": 1214.678899999999,
+          "status": "completed"
+        }
+      ]
+    },
+    {
+      "scenario": "commit",
+      "repeat": 1,
+      "arm": "native",
+      "success": true,
+      "usage": {
+        "input_tokens": 157425,
+        "cached_input_tokens": 108928,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 347,
+        "reasoning_output_tokens": 11
+      },
+      "endToEndMs": 40915.4859,
+      "turnMs": 34051.2978,
+      "calls": [
+        {
+          "type": "mcp_tool_call",
+          "server": "native",
+          "tool": "git",
+          "elapsedMs": 3.2368999999998778,
+          "status": "failed"
+        },
+        {
+          "type": "mcp_tool_call",
+          "server": "native",
+          "tool": "git",
+          "elapsedMs": 1.2734999999993306,
+          "status": "failed"
+        },
+        {
+          "type": "mcp_tool_call",
+          "server": "native",
+          "tool": "git",
+          "elapsedMs": 75.97899999999936,
+          "status": "completed"
+        },
+        {
+          "type": "mcp_tool_call",
+          "server": "native",
+          "tool": "git",
+          "elapsedMs": 68.66299999999319,
+          "status": "completed"
+        },
+        {
+          "type": "mcp_tool_call",
+          "server": "native",
+          "tool": "git",
+          "elapsedMs": 359.72000000000116,
+          "status": "completed"
+        }
+      ]
+    },
+    {
+      "scenario": "push",
+      "repeat": 1,
+      "arm": "gitkit",
+      "success": true,
+      "usage": {
+        "input_tokens": 60756,
+        "cached_input_tokens": 36608,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 169,
+        "reasoning_output_tokens": 16
+      },
+      "endToEndMs": 17680.269399999997,
+      "turnMs": 16336.059999999998,
+      "calls": [
+        {
+          "type": "mcp_tool_call",
+          "server": "gitkit",
+          "tool": "push",
+          "elapsedMs": 856.7263999999996,
+          "status": "completed"
+        }
+      ]
+    },
+    {
+      "scenario": "pull",
+      "repeat": 1,
+      "arm": "gitkit",
+      "success": true,
+      "usage": {
+        "input_tokens": 60937,
+        "cached_input_tokens": 36864,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 159,
+        "reasoning_output_tokens": 0
+      },
+      "endToEndMs": 18921.760499999997,
+      "turnMs": 17553.9747,
+      "calls": [
+        {
+          "type": "mcp_tool_call",
+          "server": "gitkit",
+          "tool": "pull",
+          "elapsedMs": 2334.1356000000087,
+          "status": "completed"
+        }
+      ]
+    },
+    {
+      "scenario": "pull",
+      "repeat": 1,
+      "arm": "native",
+      "success": true,
+      "usage": {
+        "input_tokens": 82065,
+        "cached_input_tokens": 58496,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 188,
+        "reasoning_output_tokens": 0
+      },
+      "endToEndMs": 21807.868700000006,
+      "turnMs": 20499.273900000007,
+      "calls": [
+        {
+          "type": "mcp_tool_call",
+          "server": "native",
+          "tool": "git",
+          "elapsedMs": 141.69139999999607,
+          "status": "completed"
+        },
+        {
+          "type": "mcp_tool_call",
+          "server": "native",
+          "tool": "git",
+          "elapsedMs": 526.4187999999995,
+          "status": "completed"
+        }
+      ]
+    },
+    {
+      "scenario": "push",
+      "repeat": 1,
+      "arm": "native",
+      "success": true,
+      "usage": {
+        "input_tokens": 83448,
+        "cached_input_tokens": 59392,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 206,
+        "reasoning_output_tokens": 0
+      },
+      "endToEndMs": 23728.420300000005,
+      "turnMs": 22501.824800000002,
+      "calls": [
+        {
+          "type": "mcp_tool_call",
+          "server": "native",
+          "tool": "git",
+          "elapsedMs": 203.09470000000147,
+          "status": "completed"
+        },
+        {
+          "type": "mcp_tool_call",
+          "server": "native",
+          "tool": "git",
+          "elapsedMs": 448.12369999999646,
+          "status": "completed"
+        }
+      ]
+    },
+    {
+      "scenario": "push",
+      "repeat": 2,
+      "arm": "gitkit",
+      "success": true,
+      "usage": {
+        "input_tokens": 60354,
+        "cached_input_tokens": 36352,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 150,
+        "reasoning_output_tokens": 0
+      },
+      "endToEndMs": 16636.0974,
+      "turnMs": 15349.888300000006,
+      "calls": [
+        {
+          "type": "mcp_tool_call",
+          "server": "gitkit",
+          "tool": "push",
+          "elapsedMs": 880.0546999999933,
+          "status": "completed"
+        }
+      ]
+    },
+    {
+      "scenario": "pull",
+      "repeat": 2,
+      "arm": "gitkit",
+      "success": true,
+      "usage": {
+        "input_tokens": 60304,
+        "cached_input_tokens": 36352,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 158,
+        "reasoning_output_tokens": 0
+      },
+      "endToEndMs": 17145.508,
+      "turnMs": 15940.2684,
+      "calls": [
+        {
+          "type": "mcp_tool_call",
+          "server": "gitkit",
+          "tool": "pull",
+          "elapsedMs": 1876.4045000000042,
+          "status": "completed"
+        }
+      ]
+    },
+    {
+      "scenario": "push",
+      "repeat": 2,
+      "arm": "native",
+      "success": true,
+      "usage": {
+        "input_tokens": 82454,
+        "cached_input_tokens": 36096,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 196,
+        "reasoning_output_tokens": 0
+      },
+      "endToEndMs": 19337.197499999995,
+      "turnMs": 18082.231700000004,
+      "calls": [
+        {
+          "type": "mcp_tool_call",
+          "server": "native",
+          "tool": "git",
+          "elapsedMs": 133.18460000000778,
+          "status": "completed"
+        },
+        {
+          "type": "mcp_tool_call",
+          "server": "native",
+          "tool": "git",
+          "elapsedMs": 427.0255999999936,
+          "status": "completed"
+        }
+      ]
+    },
+    {
+      "scenario": "pull",
+      "repeat": 2,
+      "arm": "native",
+      "success": true,
+      "usage": {
+        "input_tokens": 82034,
+        "cached_input_tokens": 58496,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 195,
+        "reasoning_output_tokens": 0
+      },
+      "endToEndMs": 21948.57149999999,
+      "turnMs": 20730.316999999995,
+      "calls": [
+        {
+          "type": "mcp_tool_call",
+          "server": "native",
+          "tool": "git",
+          "elapsedMs": 135.49240000000282,
+          "status": "completed"
+        },
+        {
+          "type": "mcp_tool_call",
+          "server": "native",
+          "tool": "git",
+          "elapsedMs": 538.297499999986,
+          "status": "completed"
+        }
+      ]
+    },
+    {
+      "scenario": "status",
+      "repeat": 2,
+      "arm": "native",
+      "success": true,
+      "usage": {
+        "input_tokens": 59027,
+        "cached_input_tokens": 35968,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 157,
+        "reasoning_output_tokens": 0
+      },
+      "endToEndMs": 13979.748000000007,
+      "turnMs": 12807.3217,
+      "calls": [
+        {
+          "type": "mcp_tool_call",
+          "server": "native",
+          "tool": "git",
+          "elapsedMs": 138.81550000001153,
+          "status": "completed"
+        }
+      ]
+    },
+    {
+      "scenario": "commit",
+      "repeat": 2,
+      "arm": "gitkit",
+      "success": true,
+      "usage": {
+        "input_tokens": 60211,
+        "cached_input_tokens": 48768,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 161,
+        "reasoning_output_tokens": 0
+      },
+      "endToEndMs": 15935.720000000001,
+      "turnMs": 14661.368499999997,
+      "calls": [
+        {
+          "type": "mcp_tool_call",
+          "server": "gitkit",
+          "tool": "commit",
+          "elapsedMs": 1194.6676000000152,
+          "status": "completed"
+        }
+      ]
+    },
+    {
+      "scenario": "status",
+      "repeat": 2,
+      "arm": "gitkit",
+      "success": true,
+      "usage": {
+        "input_tokens": 48855,
+        "cached_input_tokens": 43136,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 165,
+        "reasoning_output_tokens": 0
+      },
+      "endToEndMs": 20334.2641,
+      "turnMs": 19120.187000000005,
+      "calls": [
+        {
+          "type": "mcp_tool_call",
+          "server": "gitkit",
+          "tool": "status",
+          "elapsedMs": 201.6036000000022,
+          "status": "completed"
+        }
+      ]
+    },
+    {
+      "scenario": "commit",
+      "repeat": 2,
+      "arm": "native",
+      "success": true,
+      "usage": {
+        "input_tokens": 175055,
+        "cached_input_tokens": 162944,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 370,
+        "reasoning_output_tokens": 12
+      },
+      "endToEndMs": 33282.00290000001,
+      "turnMs": 32026.466900000014,
+      "calls": [
+        {
+          "type": "mcp_tool_call",
+          "server": "native",
+          "tool": "git",
+          "elapsedMs": 2.927399999985937,
+          "status": "failed"
+        },
+        {
+          "type": "mcp_tool_call",
+          "server": "native",
+          "tool": "git",
+          "elapsedMs": 1.2206000000005588,
+          "status": "failed"
+        },
+        {
+          "type": "mcp_tool_call",
+          "server": "native",
+          "tool": "git",
+          "elapsedMs": 69.84460000001127,
+          "status": "completed"
+        },
+        {
+          "type": "mcp_tool_call",
+          "server": "native",
+          "tool": "git",
+          "elapsedMs": 61.69720000002417,
+          "status": "completed"
+        },
+        {
+          "type": "mcp_tool_call",
+          "server": "native",
+          "tool": "git",
+          "elapsedMs": 226.20840000000317,
+          "status": "completed"
+        },
+        {
+          "type": "mcp_tool_call",
+          "server": "native",
+          "tool": "git",
+          "elapsedMs": 142.54509999998845,
+          "status": "completed"
+        }
+      ]
+    },
+    {
+      "scenario": "commit",
+      "repeat": 3,
+      "arm": "gitkit",
+      "success": true,
+      "usage": {
+        "input_tokens": 60206,
+        "cached_input_tokens": 36352,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 157,
+        "reasoning_output_tokens": 0
+      },
+      "endToEndMs": 12979.804999999993,
+      "turnMs": 11808.507199999993,
+      "calls": [
+        {
+          "type": "mcp_tool_call",
+          "server": "gitkit",
+          "tool": "commit",
+          "elapsedMs": 1311.0117000000027,
+          "status": "completed"
+        }
+      ]
+    },
+    {
+      "scenario": "status",
+      "repeat": 3,
+      "arm": "gitkit",
+      "success": true,
+      "usage": {
+        "input_tokens": 60438,
+        "cached_input_tokens": 36608,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 169,
+        "reasoning_output_tokens": 0
+      },
+      "endToEndMs": 14186.602199999994,
+      "turnMs": 13037.88949999999,
+      "calls": [
+        {
+          "type": "mcp_tool_call",
+          "server": "gitkit",
+          "tool": "status",
+          "elapsedMs": 222.3761999999988,
+          "status": "completed"
+        }
+      ]
+    },
+    {
+      "scenario": "commit",
+      "repeat": 3,
+      "arm": "native",
+      "success": true,
+      "usage": {
+        "input_tokens": 82220,
+        "cached_input_tokens": 58496,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 217,
+        "reasoning_output_tokens": 0
+      },
+      "endToEndMs": 16633.339500000002,
+      "turnMs": 15527.988899999997,
+      "calls": [
+        {
+          "type": "mcp_tool_call",
+          "server": "native",
+          "tool": "git",
+          "elapsedMs": 297.02110000001267,
+          "status": "completed"
+        },
+        {
+          "type": "mcp_tool_call",
+          "server": "native",
+          "tool": "git",
+          "elapsedMs": 458.7668999999878,
+          "status": "completed"
+        }
+      ]
+    },
+    {
+      "scenario": "status",
+      "repeat": 3,
+      "arm": "native",
+      "success": true,
+      "usage": {
+        "input_tokens": 80246,
+        "cached_input_tokens": 56704,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 184,
+        "reasoning_output_tokens": 0
+      },
+      "endToEndMs": 16934.240699999995,
+      "turnMs": 15784.869999999995,
+      "calls": [
+        {
+          "type": "mcp_tool_call",
+          "server": "native",
+          "tool": "git",
+          "elapsedMs": 89.72140000000945,
+          "status": "completed"
+        }
+      ]
+    },
+    {
+      "scenario": "pull",
+      "repeat": 3,
+      "arm": "gitkit",
+      "success": true,
+      "usage": {
+        "input_tokens": 60302,
+        "cached_input_tokens": 36352,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 156,
+        "reasoning_output_tokens": 0
+      },
+      "endToEndMs": 16756.770600000018,
+      "turnMs": 15427.666100000002,
+      "calls": [
+        {
+          "type": "mcp_tool_call",
+          "server": "gitkit",
+          "tool": "pull",
+          "elapsedMs": 2019.0246000000043,
+          "status": "completed"
+        }
+      ]
+    },
+    {
+      "scenario": "push",
+      "repeat": 3,
+      "arm": "native",
+      "success": true,
+      "usage": {
+        "input_tokens": 82515,
+        "cached_input_tokens": 58752,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 203,
+        "reasoning_output_tokens": 0
+      },
+      "endToEndMs": 17249.54999999999,
+      "turnMs": 15995.405399999989,
+      "calls": [
+        {
+          "type": "mcp_tool_call",
+          "server": "native",
+          "tool": "git",
+          "elapsedMs": 212.32399999999325,
+          "status": "completed"
+        },
+        {
+          "type": "mcp_tool_call",
+          "server": "native",
+          "tool": "git",
+          "elapsedMs": 481.8320999999996,
+          "status": "completed"
+        }
+      ]
+    },
+    {
+      "scenario": "pull",
+      "repeat": 3,
+      "arm": "native",
+      "success": true,
+      "usage": {
+        "input_tokens": 83343,
+        "cached_input_tokens": 71808,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 222,
+        "reasoning_output_tokens": 29
+      },
+      "endToEndMs": 18578.27410000001,
+      "turnMs": 17222.796000000002,
+      "calls": [
+        {
+          "type": "mcp_tool_call",
+          "server": "native",
+          "tool": "git",
+          "elapsedMs": 151.20609999998123,
+          "status": "completed"
+        },
+        {
+          "type": "mcp_tool_call",
+          "server": "native",
+          "tool": "git",
+          "elapsedMs": 578.5313000000024,
+          "status": "completed"
+        }
+      ]
+    },
+    {
+      "scenario": "push",
+      "repeat": 3,
+      "arm": "gitkit",
+      "success": true,
+      "usage": {
+        "input_tokens": 60438,
+        "cached_input_tokens": 23168,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 152,
+        "reasoning_output_tokens": 0
+      },
+      "endToEndMs": 22535.26569999999,
+      "turnMs": 21233.27589999998,
+      "calls": [
+        {
+          "type": "mcp_tool_call",
+          "server": "gitkit",
+          "tool": "push",
+          "elapsedMs": 912.3661000000138,
+          "status": "completed"
+        }
+      ]
+    }
+  ]
+}

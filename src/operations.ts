@@ -178,7 +178,10 @@ export const operations = {
         }
         throw error;
       }
-      return repo.result('已提交到本地', { commit: await repo.head(), message, backup }, files);
+      // Hooks may rewrite the message. Return the actual stored subject so
+      // callers can report the completed commit without another log request.
+      const [commit, subject] = (await repo.output(['log', '-1', '--format=%H%x00%s', 'HEAD'])).split('\0');
+      return repo.result('已提交到本地', { commit, message, subject: redact(subject ?? ''), backup }, files);
     } catch (error) {
       if (backup && error instanceof GitError) throw new GitError(error.code, error.message, `${error.suggestion} 自动属性修改备份：${backup}`, error.detail);
       throw error;
