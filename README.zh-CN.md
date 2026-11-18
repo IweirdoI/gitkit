@@ -2,18 +2,18 @@
 
 [English](README.md) · [发行版本](https://github.com/IweirdoI/gitkit/releases) · [反馈问题](https://github.com/IweirdoI/gitkit/issues) · [MIT 许可证](LICENSE)
 
-GitKit 为人提供 Git 命令行，为 Agent 提供 stdio MCP 工具。两者共享 TypeScript 核心，可查看改动、提交、拉取、推送，并在 GitHub 或 Gitee 创建、更新同仓库 PR。
+GitKit 为人提供 Git 命令行，为 Agent 提供 stdio MCP 工具。两者共享 TypeScript 核心，可查看改动、提交、拉取、推送，并在 GitHub 或 Gitee 创建、更新同仓库及跨 Fork PR。
 
 ## 安装
 
 需要 **Node.js 22+**、**Git 2.39+**。管理大文件时安装 [Git LFS](https://git-lfs.com/)。
 
 ```sh
-npm install -g https://github.com/IweirdoI/gitkit/releases/download/v0.1.3/gitkit-agent-0.1.3.tgz
+npm install -g https://github.com/IweirdoI/gitkit/releases/download/v0.1.4/gitkit-agent-0.1.4.tgz
 gitkit --help
 ```
 
-npm 包名是 `gitkit-agent`。版本在 npm 可用后，可用 `npx gitkit-agent@0.1.3 --help` 直接运行，或用 `npm install -g gitkit-agent@0.1.3` 持久安装。[查看 npm 发布状态](https://www.npmjs.com/package/gitkit-agent)。
+npm 包名是 `gitkit-agent`。版本在 npm 可用后，可用 `npx gitkit-agent@0.1.4 --help` 直接运行，或用 `npm install -g gitkit-agent@0.1.4` 持久安装。[查看 npm 发布状态](https://www.npmjs.com/package/gitkit-agent)。
 
 ## 基本使用
 
@@ -34,6 +34,14 @@ gitkit push --pr --base main --dry-run
 > 读取本仓库的 README.zh-CN.md 和 docs/agents.md。按文档安装指定版本，为当前 Git 仓库注册 GitKit stdio MCP，并用只读 status 验证。遵循客户端已有审批设置。
 
 Codex、Claude Code/Desktop、Cursor、DeepSeek Harness 支持 stdio。DeepSeek Harness 也有原生插件。网页版 ChatGPT 可在受支持的工作区通过 Secure MCP Tunnel 接入。[各客户端配置与更新](docs/agents.md)。
+
+## 跨 Fork PR 与网络故障
+
+`gitkit push --pr --base main --base-repo upstream/project` 向选定的 remote 推送，再在明确指定的上游仓库创建或更新 PR，避免误用过期 Fork 主线作比较基准。
+
+如果分支已经上传，可用 `gitkit push --pr --pr-only --base main --base-repo upstream/project`。工具先通过平台 API 验证远端源分支与本地 HEAD 一致，再同步 PR，需要配置平台令牌。此模式执行 PR API 操作，无 Git 传输。
+
+只读远端探测遇到网络错误或超时后最多重试一次，每次使用配置的子进程超时。写入和 hooks 不自动重放。本版尚未提供 API Git 对象上传。
 
 ## 卸载
 

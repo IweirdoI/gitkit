@@ -1,6 +1,7 @@
 import { open, readFile, realpath, stat, unlink } from 'node:fs/promises';
 import { isAbsolute, relative, resolve, sep } from 'node:path';
 import { randomUUID } from 'node:crypto';
+import { setTimeout as delay } from 'node:timers/promises';
 import { GitError, retryLocks, run } from './process.js';
 
 export interface Options { cwd?: string; timeoutMs?: number; yes?: boolean; dryRun?: boolean }
@@ -49,6 +50,17 @@ export class Repo {
       ? { GIT_OPTIONAL_LOCKS: '0', GIT_NO_LAZY_FETCH: '1' } : undefined });
   }
   write(args: string[]) { return retryLocks(() => this.git(args)); }
+  /** Retry read-only remote discovery once. Writes and hooks are never replayed here. */
+  async remoteRefs(args: string[]) {
+    if (args[0] !== 'ls-remote') throw new GitError('invalid_input', '远端探测必须使用 ls-remote');
+    try { return await this.git(args); }
+    catch (error) {
+      if (!(error instanceof GitError) || !['network_error', 'timeout'].includes(error.code)) throw error;
+      try { await delay(200, undefined, { signal: this.signal }); }
+      catch { throw new GitError('cancelled', '远端探测重试已取消'); }
+      return this.git(args);
+    }
+  }
   async output(args: string[], accepted = [0]) { return (await this.git(args, accepted)).stdout.replace(/\r?\n$/, ''); }
 
   async discover(readBranch = true) {

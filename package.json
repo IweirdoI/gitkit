@@ -1,6 +1,6 @@
 {
   "name": "gitkit-agent",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "Git CLI and stdio MCP tools for GitHub and Gitee",
   "type": "module",
   "bin": {

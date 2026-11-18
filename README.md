@@ -2,18 +2,18 @@
 
 [简体中文](README.zh-CN.md) · [Releases](https://github.com/IweirdoI/gitkit/releases) · [Issues](https://github.com/IweirdoI/gitkit/issues) · [MIT](LICENSE)
 
-A Git CLI for people and a stdio MCP server for agents. Both share one TypeScript engine for inspecting, committing, pulling and pushing changes. GitHub and Gitee also support creating and updating same-repository pull requests.
+A Git CLI for people and a stdio MCP server for agents. Both share one TypeScript engine for inspecting, committing, pulling and pushing changes. GitHub and Gitee also support creating and updating same-repository and cross-fork pull requests.
 
 ## Install
 
 Requires **Node.js 22+** and **Git 2.39+**. Install [Git LFS](https://git-lfs.com/) for large-file workflows.
 
 ```sh
-npm install -g https://github.com/IweirdoI/gitkit/releases/download/v0.1.3/gitkit-agent-0.1.3.tgz
+npm install -g https://github.com/IweirdoI/gitkit/releases/download/v0.1.4/gitkit-agent-0.1.4.tgz
 gitkit --help
 ```
 
-The npm package name is `gitkit-agent`. Once the version is available on npm, run `npx gitkit-agent@0.1.3 --help` or install it with `npm install -g gitkit-agent@0.1.3`. [Check npm availability](https://www.npmjs.com/package/gitkit-agent).
+The npm package name is `gitkit-agent`. Once the version is available on npm, run `npx gitkit-agent@0.1.4 --help` or install it with `npm install -g gitkit-agent@0.1.4`. [Check npm availability](https://www.npmjs.com/package/gitkit-agent).
 
 ## Use it in a repository
 
@@ -34,6 +34,14 @@ Send [this repository URL](https://github.com/IweirdoI/gitkit) and the following
 > Read README.md and docs/agents.en.md here. Install the pinned GitKit version using the documented command, register its stdio MCP server for my current Git repository, and verify it with the read-only status tool. Follow my client's approval rules.
 
 Codex, Claude Code/Desktop, Cursor and DeepSeek Harness support stdio. DeepSeek Harness also has a native plugin. ChatGPT custom apps can connect through a Secure MCP Tunnel where available. [Client-specific setup and upgrade instructions](docs/agents.en.md).
+
+## Fork pull requests and connectivity
+
+`gitkit push --pr --base main --base-repo upstream/project` pushes to the selected remote and opens or updates a PR in the explicit target repository. This avoids using an outdated fork default branch as the PR base.
+
+If the branch has already been uploaded, use `gitkit push --pr --pr-only --base main --base-repo upstream/project`. GitKit verifies through the platform API that the remote source branch equals local HEAD before synchronizing the PR. This mode needs a platform token. It performs PR API operations without Git transfer.
+
+Read-only remote discovery retries a network error or timeout once, then reports the error. Each attempt uses the configured subprocess timeout. Writes and hooks are not automatically replayed. API object uploading is outside this release.
 
 ## Uninstall
 

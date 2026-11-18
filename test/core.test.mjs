@@ -9,7 +9,8 @@ import { createServer } from 'node:http';
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
 import { execute, toolNames } from '../dist/index.js';
-import { run } from '../dist/process.js';
+import { run, classify, GitError } from '../dist/process.js';
+import { Repo } from '../dist/context.js';
 import { provider, upsertPr } from '../dist/providers.js';
 
 const cli = fileURLToPath(new URL('../dist/cli.js', import.meta.url));
@@ -271,6 +272,96 @@ test('registered worktrees are listed and removable with confirmation', async t 
   const removed = await call('worktree', { action: 'remove', path: removalPath, yes: true });
   assert.equal(removed.ok, true, JSON.stringify(removed));
   assert.equal((await call('worktree')).data.managed.length, 0);
+});
+test('read-only remote discovery retries network errors once and never retries credentials', async () => {
+  assert.equal(classify('fatal: unable to access: Failed to connect to github.com port 443').code, 'network_error');
+  const repo = new Repo({});
+  let calls = 0;
+  repo.git = async () => {
+    if (++calls === 1) throw new GitError('network_error', 'connection reset');
+    return { status: 0, stdout: 'ok', stderr: '' };
+  };
+  assert.equal((await repo.remoteRefs(['ls-remote', 'origin'])).stdout, 'ok');
+  assert.equal(calls, 2);
+  repo.git = async () => { calls++; throw new GitError('credentials_required', 'denied'); };
+  calls = 0;
+  await assert.rejects(repo.remoteRefs(['ls-remote', 'origin']), { code: 'credentials_required' });
+  assert.equal(calls, 1);
+  calls = 0;
+  repo.git = async () => { calls++; throw new GitError('timeout', 'timeout'); };
+  await assert.rejects(repo.remoteRefs(['ls-remote', 'origin']), { code: 'timeout' });
+  assert.equal(calls, 2);
+});
+test('API-only cross-fork PR verifies source HEAD, distinguishes other forks, and updates idempotently', async t => {
+  const { cwd, call } = await fixture(t);
+  git(cwd, 'remote', 'add', 'origin', 'https://github.com/contributor/project.git');
+  const commit = git(cwd, 'rev-parse', 'HEAD');
+  const old = process.env.GITHUB_TOKEN;
+  process.env.GITHUB_TOKEN = 'test-github';
+  t.after(() => { if (old === undefined) delete process.env.GITHUB_TOKEN; else process.env.GITHUB_TOKEN = old; });
+  let requests = [];
+  let exists = false;
+  let mismatch = false;
+  t.mock.method(globalThis, 'fetch', async (endpoint, options) => {
+    const url = new URL(endpoint);
+    requests.push({ path: url.pathname, method: options.method });
+    if (url.pathname === '/repos/contributor/project/branches/main') return Response.json({ commit: { sha: mismatch ? 'bad' : commit } });
+    assert.equal(url.pathname.startsWith('/repos/upstream/project/pulls'), true);
+    const pr = { number: 8, html_url: 'https://example.invalid/pull/8',
+      head: { ref: 'main', repo: { full_name: 'contributor/project' } }, base: { ref: 'main' } };
+    if (options.method === 'GET') {
+      assert.equal(url.searchParams.get('head'), 'contributor:main');
+      return Response.json(exists ? [pr] : [{ ...pr, head: { ...pr.head, repo: { full_name: 'someone/project' } } }]);
+    }
+    const body = JSON.parse(options.body);
+    if (options.method === 'POST') {
+      assert.equal(body.head, 'contributor:main');
+      assert.equal(body.head_repo, 'project');
+      exists = true;
+    } else assert.equal(url.pathname, '/repos/upstream/project/pulls/8');
+    return Response.json(pr);
+  });
+  const input = { pr: true, prOnly: true, base: 'main', baseRepo: 'upstream/project' };
+  const dry = await call('push', { ...input, dryRun: true });
+  assert.equal(dry.ok, true);
+  assert.equal(requests.length, 0);
+  const created = await call('push', input);
+  assert.equal(created.ok, true, JSON.stringify(created));
+  assert.equal(created.data.pr.base_repo, 'upstream/project');
+  assert.equal(created.data.pr.existing, false);
+  assert.equal((await call('push', { ...input, title: 'Updated' })).data.pr.existing, true);
+  requests = [];
+  mismatch = true;
+  assert.equal((await call('push', input)).error_code, 'remote_mismatch');
+  assert.equal(requests.length, 1);
+  assert.equal(git(cwd, 'for-each-ref', '--format=%(refname)', 'refs/remotes'), '');
+  assert.equal((await call('push', { prOnly: true })).error_code, 'invalid_input');
+});
+test('Gitee cross-fork PR uses the target repository and qualified source branch', async t => {
+  const old = process.env.GITEE_TOKEN;
+  process.env.GITEE_TOKEN = 'test-gitee';
+  t.after(() => { if (old === undefined) delete process.env.GITEE_TOKEN; else process.env.GITEE_TOKEN = old; });
+  t.mock.method(globalThis, 'fetch', async (endpoint, options) => {
+    const url = new URL(endpoint);
+    if (url.pathname === '/api/v5/repos/contributor/project/branches/topic') {
+      assert.equal(url.searchParams.get('access_token'), 'test-gitee');
+      return Response.json({ commit: { sha: 'abc' } });
+    }
+    assert.equal(url.pathname, '/api/v5/repos/upstream/project/pulls');
+    if (options.method === 'GET') {
+      assert.equal(url.searchParams.get('head'), 'contributor:topic');
+      return Response.json([]);
+    }
+    const payload = JSON.parse(options.body);
+    assert.equal(payload.access_token, 'test-gitee');
+    assert.equal(payload.head, 'contributor:topic');
+    assert.equal(payload.base, 'main');
+    return Response.json({ number: 1, html_url: 'https://gitee.com/upstream/project/pulls/1' });
+  });
+  const pr = await upsertPr({ timeout: 2000 }, provider('https://gitee.com/contributor/project.git'),
+    'topic', 'main', undefined, undefined, 'upstream/project', 'abc');
+  assert.equal(pr.base_repo, 'upstream/project');
+  assert.equal(pr.source_repo, 'contributor/project');
 });
 test('branch switching and confirmed hard resets preserve colliding ignored files', async t => {
   const { cwd, call } = await fixture(t);

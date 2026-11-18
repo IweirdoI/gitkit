@@ -192,7 +192,7 @@ export const workflows = {
     let credentials: unknown = { status: 'not_configured' };
     if (remotes.includes(remote)) {
       credentials = repo.options.dryRun ? { status: 'skipped' }
-        : await repo.git(['ls-remote', remote, 'HEAD']).then(() => ({ status: 'read_access' }),
+        : await repo.remoteRefs(['ls-remote', remote, 'HEAD']).then(() => ({ status: 'read_access' }),
           (error: GitError) => ({ status: error.code, suggestion: error.suggestion, detail: error.detail }));
     }
     const paths = split((await repo.git(['ls-files', '-z', '--cached', '--others', '--exclude-standard'])).stdout);
