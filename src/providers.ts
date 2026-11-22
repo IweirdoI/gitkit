@@ -18,6 +18,42 @@ export function provider(url: string) {
       lfsLimit: kind === 'github' ? 2048 * MiB : undefined } as const : null;
 }
 
+export function platformRequest(repo: Repo, kind: 'github' | 'gitee') {
+  const github = kind === 'github';
+  const token = github ? process.env.GITHUB_TOKEN || process.env.GH_TOKEN : process.env.GITEE_TOKEN;
+  if (!token) throw new GitError('credentials_required', '缺少平台 API 凭据',
+    github ? '配置 GITHUB_TOKEN 或 GH_TOKEN。' : '配置 GITEE_TOKEN。');
+  async function request(endpoint: string, method: string, payload?: object) {
+    try {
+      const response = await fetch(endpoint, {
+        method, redirect: 'error', signal: AbortSignal.any([AbortSignal.timeout(repo.timeout), ...(repo.signal ? [repo.signal] : [])]),
+        headers: { Accept: 'application/json', 'Content-Type': 'application/json',
+          ...(github ? { Authorization: `Bearer ${token}` } : {}) },
+        body: payload ? JSON.stringify(github ? payload : { ...payload, access_token: token }) : undefined,
+      });
+      if (!response.ok) {
+        const detail = redact((await response.text()).slice(0, 4096).split(token!).join('[redacted]'));
+        throw new GitError([401, 403].includes(response.status) ? 'credentials_required' : 'platform_api',
+          `平台 API 返回 HTTP ${response.status}`, '检查令牌权限、源仓库、目标仓库及目标分支。', detail);
+      }
+      return await response.json();
+    } catch (error) {
+      if (error instanceof GitError) throw error;
+      if (repo.signal?.aborted) throw new GitError('cancelled', '平台 API 请求已取消');
+      if (error instanceof Error && ['TimeoutError', 'AbortError'].includes(error.name)) throw new GitError('timeout', '平台 API 请求超时');
+      throw new GitError('network_error', '平台 API 请求失败', '检查平台网络与代理配置。');
+    }
+  }
+  return async (endpoint: string, method: string, payload?: object) => {
+    const url = new URL(endpoint);
+    if (url.origin !== (github ? 'https://api.github.com' : 'https://gitee.com')) {
+      throw new GitError('invalid_input', '平台 API 地址不匹配');
+    }
+    if (!github && method === 'GET') url.searchParams.set('access_token', token);
+    return request(url.toString(), method, payload);
+  };
+}
+
 /** A second run after a partial push finds the existing open PR and updates it. */
 export async function upsertPr(repo: Repo, target: NonNullable<ReturnType<typeof provider>>,
   branch: string, base: string, title?: string, body?: string,
@@ -32,27 +68,16 @@ export async function upsertPr(repo: Repo, target: NonNullable<ReturnType<typeof
     github ? '配置 GITHUB_TOKEN 或 GH_TOKEN。' : '配置有仓库权限的 GITEE_TOKEN。');
   const api = github ? 'https://api.github.com' : 'https://gitee.com/api/v5';
   const url = `${api}/repos/${destination}/pulls`;
-  async function request(endpoint: string, method: string, payload?: object) {
-    try {
-      const response = await fetch(endpoint, {
-        method, redirect: 'error', signal: AbortSignal.any([AbortSignal.timeout(repo.timeout), ...(repo.signal ? [repo.signal] : [])]),
-        headers: { Accept: 'application/json', 'Content-Type': 'application/json',
-          ...(github ? { Authorization: `Bearer ${token}` } : {}) },
-        body: payload ? JSON.stringify(github ? payload : { ...payload, access_token: token }) : undefined,
-      });
-      if (!response.ok) {
-        const detail = redact((await response.text()).slice(0, 4096).split(token!).join('[redacted]'));
-        throw new GitError([401, 403].includes(response.status) ? 'credentials_required' : 'pr_api',
-          `PR API 返回 HTTP ${response.status}`, '检查令牌权限、源仓库、目标仓库及目标分支。', detail);
+  const send = platformRequest(repo, target.kind);
+  const request = async (endpoint: string, method: string, payload?: object) => {
+    try { return await send(endpoint, method, payload); }
+    catch (error) {
+      if (error instanceof GitError && error.code === 'platform_api') {
+        throw new GitError('pr_api', error.message, error.suggestion, error.detail);
       }
-      return await response.json();
-    } catch (error) {
-      if (error instanceof GitError) throw error;
-      if (repo.signal?.aborted) throw new GitError('cancelled', 'PR API 请求已取消');
-      if (error instanceof Error && ['TimeoutError', 'AbortError'].includes(error.name)) throw new GitError('timeout', 'PR API 请求超时');
-      throw new GitError('network_error', 'PR API 请求失败', '检查平台网络与代理配置。');
+      throw error;
     }
-  }
+  };
   const qualifiedHead = github || crossFork ? `${target.owner}:${branch}` : branch;
   if (expectedCommit) {
     const query = new URLSearchParams(github ? {} : { access_token: token });

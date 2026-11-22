@@ -5,6 +5,7 @@ import { Repo, type Result, operand } from './context.js';
 import { operations, conflictReport } from './operations.js';
 import { workflows } from './workflows.js';
 import { GitError, redact } from './process.js';
+import { issue } from './issues.js';
 
 const text = (description: string) => z.string().min(1).max(65536).describe(description).optional();
 const flag = (description: string) => z.boolean().describe(description).optional();
@@ -34,6 +35,13 @@ function define<S extends z.ZodRawShape>(description: string, fields: S,
 }
 
 export const tools = {
+  issue: define('提交 Issue / 报告缺陷 / 创建、列出、查看、编辑、评论、关闭或重开问题。list 返回精简编号标题链接，view 返回正文。', {
+    action: choices('list', 'view', 'create', 'update', 'comment'),
+    repo: text('目标仓库 owner/repo，显式指定时无需本地 Git 仓库'), platform: choices('github', 'gitee'), remote,
+    number: text('Issue 编号，Gitee 可含字母'), title: text('Issue 标题'),
+    body: z.string().max(65536).describe('正文或评论，更新可用空字符串清除正文').optional(),
+    state: choices('open', 'closed', 'all'), limit: count('每页数量，默认20', 100), page: count('页码，默认1', 10000),
+  }, issue, ['action']),
   pull: define('拉取远端最新 / 拉取远端 / 同步代码。直接调用即可，内置状态检查，成功返回当前分支、HEAD 和最新提交标题。默认允许分叉时合并，ffOnly 仅快进。', { remote, source: text('远端分支名'), ffOnly, unsigned }, all.pull),
   push: define('推送 / 推送远端 PR / 创建或更新 GitHub、Gitee PR。baseRepo 指定跨 Fork 目标仓库。prOnly 经 API 验证已推送分支并同步 PR。成功返回分支、upstream 和 PR（如请求）。无 upstream 时自动设置。', {
     remote, force: flag('带精确租约强推，需要确认'), noVerify, pr: flag('同步同仓库 PR，需要 --base'),
@@ -130,6 +138,7 @@ export async function execute(name: ToolName, input: unknown = {}, signal?: Abor
   const options = parsed.data as z.output<typeof tool.schema> & Record<string, unknown>;
   const repo = new Repo(options, signal);
   try {
+    if (name === 'issue' && options.repo) return await issue(repo, options as Parameters<typeof issue>[1]);
     if (name !== 'clone') await repo.discover(false);
     // Each tool's schema and handler are paired by define(). TS loses that
     // correlation when indexing a union of the different registered tools.

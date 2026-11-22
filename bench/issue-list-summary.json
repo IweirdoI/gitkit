@@ -1,0 +1,18 @@
+{
+  "rawResponseBytes": 19179,
+  "gitkitStructuredBytes": 718,
+  "byteReductionPercent": 96.25632201887481,
+  "scope": "Synthetic API fixture; raw full REST response versus compact Issue list",
+  "native": {
+    "seconds": 22.789356866666665,
+    "totalTokens": 44239,
+    "uncachedInput": 21559.333333333332
+  },
+  "gitkit": {
+    "seconds": 22.554757400000003,
+    "totalTokens": 41112,
+    "uncachedInput": 18994.666666666668
+  },
+  "timeReductionPercent": 1.0294255693095167,
+  "totalTokenReductionPercent": 7.068423788964484
+}

@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.2.0
+
+- Add the shared Issue tool for GitHub and Gitee: create, list, view, update and comment, with close/reopen through update.
+- Return compact paginated lists and fetch full bodies only through view.
+- Verify GitHub Issue writes against a real repository and test Gitee routes through simulation.
+- Document provider boundaries and consolidate older public Releases into recoverable drafts.
+
+新增 Issue 管理、精简分页列表、双语指南和平台范围说明。旧公开发行页归档为可恢复草稿。
+
 ## 0.1.4
 
 - Add explicit cross-fork PR targets through push --base-repo.

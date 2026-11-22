@@ -4,7 +4,7 @@ import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { createInterface } from 'node:readline';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { performance } from 'node:perf_hooks';
 
 const root = fileURLToPath(new URL('..', import.meta.url));
@@ -20,13 +20,15 @@ const referenceArm = referenceCli ? 'reference' : 'native';
 const selected = process.env.GITKIT_BENCH_TASKS?.split(',');
 assert.ok(Number.isInteger(repeats) && repeats > 0 && Number.isInteger(parallelPairs) && parallelPairs > 0);
 const scenarios = [
+  { id: 'issues', label: '精简 Issue 列表', prompt: '列出 GitHub example/project 最近5条未关闭 Issue 的编号和标题，仅返回 numbers 字符串数组和 titles 字符串数组。' },
   { id: 'status', label: '检查分支与改动', prompt: '查看当前分支、已暂存文件、未暂存的已跟踪文件和未跟踪文件。输出分支名以及三类文件名，用中文说明。只查询。' },
   { id: 'commit', label: '暂存并提交', prompt: '把 draft.txt 的改动提交到当前分支，提交信息使用 chore: update draft。提交后告诉我分支名和实际提交信息。' },
   { id: 'pull', label: '拉取本地远端', prompt: '从 origin 拉取当前分支的最新提交，要求只允许快进。成功后告诉我分支名和最新提交信息。' },
   { id: 'push', label: '首次推送并设上游', prompt: '把当前分支首次推送到 origin，建立 upstream，然后告诉我当前分支名和完整 upstream 名称。' },
-].filter(scenario => !selected || selected.includes(scenario.id));
+].filter(scenario => selected ? selected.includes(scenario.id) : scenario.id !== 'issues');
 assert.ok(scenarios.length && (!selected || selected.every(id => scenarios.some(scenario => scenario.id === id))));
 const schemaFor = {
+  issues: { numbers: 'array', titles: 'array' },
   status: { branch: 'string', staged: 'array', unstaged: 'array', untracked: 'array' },
   commit: { branch: 'string', subject: 'string' },
   pull: { branch: 'string', subject: 'string' },
@@ -75,6 +77,12 @@ async function makeFixture(scenario, repeat, arm) {
     branch: git(cwd, 'branch', '--show-current') };
 }
 function validate(scenario, fixture, answer) {
+  if (scenario.id === 'issues') {
+    assert.deepEqual(answer.numbers, ['105','104','103','102','101']);
+    assert.deepEqual(answer.titles, ['Export fails','Slow search','Missing label','Stale cache','Broken link']);
+    assert.equal(git(fixture.cwd, 'status', '--porcelain=v1'), fixture.initialStatus);
+    return;
+  }
   const { cwd, bare, before, initialStatus, branch } = fixture;
   assert.equal(answer?.branch, branch, 'reported branch');
   if (scenario.id === 'status') {
@@ -113,14 +121,18 @@ const slash = value => value.replaceAll('\\', '/');
 async function benchmark(scenario, repeat, arm, fixture) {
   const { cwd } = fixture;
   const server = arm === 'native' ? 'native' : 'gitkit';
-  const toolArgs = arm === 'native' ? [join(root, 'bench/git-commands.mjs'), cwd]
+  const toolArgs = scenario.id === 'issues' ? (arm === 'native' ? [join(root,'bench/issue-raw.mjs')]
+    : ['--import',pathToFileURL(join(root,'bench/issue-fixture.mjs')).href,join(root,'dist/cli.js'),'mcp','--cwd',cwd])
+    : arm === 'native' ? [join(root, 'bench/git-commands.mjs'), cwd]
     : [arm === 'reference' ? referenceCli : join(root, 'dist/cli.js'), 'mcp', '--cwd', cwd];
   const schemaPath = join(scratch, scenario.id + '.json');
   const timeout = http ? 90_000 : 200_000;
   const options = ['exec', '--ephemeral', '--ignore-user-config', '--sandbox', 'read-only', '--disable', 'shell_tool',
     '--model', model, '--json', '--output-schema', schemaPath, '-C', cwd,
     '-c', 'model_reasoning_effort="low"',
-    '-c', 'developer_instructions=' + toml('通过当前提供的 MCP 工具执行仓库任务。只操作指定的实验仓库。根据工具返回给出准确的最终 JSON。'),
+    '-c', 'developer_instructions=' + toml(scenario.id === 'issues'
+      ? `本实验仅使用名为 ${server} 的 MCP server，它提供隔离的合成 API。仅通过该 server 的工具完成任务，根据工具返回给出准确的最终 JSON。`
+      : '通过当前提供的 MCP 工具执行仓库任务。只操作指定的实验仓库。根据工具返回给出准确的最终 JSON。'),
     '-c', `mcp_servers.${server}.command=${toml(slash(process.execPath))}`,
     '-c', `mcp_servers.${server}.args=${toml(toolArgs.map(slash))}`,
     '-c', `mcp_servers.${server}.required=true`, '-c', `mcp_servers.${server}.startup_timeout_sec=20`,
@@ -128,7 +140,8 @@ async function benchmark(scenario, repeat, arm, fixture) {
   ];
   if (http) options.push('-c', 'model_provider=gitkit_http',
     '-c', 'model_providers.gitkit_http={ name = "OpenAI benchmark", base_url = "https://chatgpt.com/backend-api/codex", wire_api = "responses", requires_openai_auth = true, supports_websockets = false, stream_max_retries = 1 }');
-  if (server === 'gitkit') options.push('-c', 'mcp_servers.gitkit.enabled_tools=["branch","commit","diff","fetch","log","merge","pull","push","status"]');
+  if (server === 'gitkit') options.push('-c', scenario.id === 'issues' ? 'mcp_servers.gitkit.enabled_tools=["issue"]'
+    : 'mcp_servers.gitkit.enabled_tools=["branch","commit","diff","fetch","log","merge","pull","push","status"]');
   const start = performance.now();
   const child = spawn(process.execPath, [cli, ...options, scenario.prompt], { cwd, env: commonEnv, windowsHide: true,
     stdio: ['ignore', 'pipe', 'pipe'] });
