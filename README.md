@@ -9,13 +9,17 @@ A Git CLI for people and a stdio MCP server for agents. Both share one TypeScrip
 Requires **Node.js 22+** and **Git 2.39+**. Install [Git LFS](https://git-lfs.com/) for large-file workflows.
 
 ```sh
-npm install -g https://github.com/IweirdoI/gitkit/releases/download/v0.1.4/gitkit-agent-0.1.4.tgz
+npm install -g https://github.com/IweirdoI/gitkit/releases/download/v0.2.0/gitkit-agent-0.2.0.tgz
 gitkit --help
 ```
 
-The npm package name is `gitkit-agent`. Once the version is available on npm, run `npx gitkit-agent@0.1.4 --help` or install it with `npm install -g gitkit-agent@0.1.4`. [Check npm availability](https://www.npmjs.com/package/gitkit-agent).
+The npm package name is `gitkit-agent`. Once the version is available on npm, run `npx gitkit-agent@0.2.0 --help` or install it with `npm install -g gitkit-agent@0.2.0`. [Check npm availability](https://www.npmjs.com/package/gitkit-agent).
 
 ## Use it in a repository
+
+Issue management is available through the same CLI and MCP tool. Use `gitkit issue create --repo owner/project --platform github --title "Export fails" --body "Steps to reproduce" --dry-run` to preview a report. List, view, update and comment are supported too. [Issue guide](docs/issues.en.md) · [Platform coverage](docs/platforms.md).
+
+The Issue-list fixture benchmark reduced structured JSON bytes by 96.26%, whole-turn tokens by 7.07% and mean time by 1.03% against full raw REST responses. The time difference is small. [Measurement scope](bench/issue-list-experiment.md).
 
 ```sh
 gitkit status --json

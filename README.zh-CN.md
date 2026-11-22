@@ -9,13 +9,17 @@ GitKit 为人提供 Git 命令行，为 Agent 提供 stdio MCP 工具。两者�
 需要 **Node.js 22+**、**Git 2.39+**。管理大文件时安装 [Git LFS](https://git-lfs.com/)。
 
 ```sh
-npm install -g https://github.com/IweirdoI/gitkit/releases/download/v0.1.4/gitkit-agent-0.1.4.tgz
+npm install -g https://github.com/IweirdoI/gitkit/releases/download/v0.2.0/gitkit-agent-0.2.0.tgz
 gitkit --help
 ```
 
-npm 包名是 `gitkit-agent`。版本在 npm 可用后，可用 `npx gitkit-agent@0.1.4 --help` 直接运行，或用 `npm install -g gitkit-agent@0.1.4` 持久安装。[查看 npm 发布状态](https://www.npmjs.com/package/gitkit-agent)。
+npm 包名是 `gitkit-agent`。版本在 npm 可用后，可用 `npx gitkit-agent@0.2.0 --help` 直接运行，或用 `npm install -g gitkit-agent@0.2.0` 持久安装。[查看 npm 发布状态](https://www.npmjs.com/package/gitkit-agent)。
 
 ## 基本使用
+
+Issue 管理通过同一 CLI/MCP 工具提供。`gitkit issue create --repo owner/project --platform github --title "导出失败" --body "复现步骤" --dry-run` 可预演报告。还支持列表、详情、编辑、评论和关闭／重开。[Issue 指南](docs/issues.md) · [平台适配范围](docs/platforms.md)。
+
+合成 Issue 列表实验对比完整 REST 响应，结构化 JSON 字节数少 96.26%，整轮 token 少 7.07%，平均耗时少 1.03%，时间差异尚不显著。[实验口径](bench/issue-list-experiment.md)。
 
 ```sh
 gitkit status --json

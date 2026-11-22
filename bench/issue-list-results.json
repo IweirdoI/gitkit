@@ -1,0 +1,167 @@
+{
+  "model": "gpt-6.1-sol",
+  "reasoning": "low",
+  "transport": "HTTP",
+  "versions": {
+    "codex": "codex-cli 0.164.0",
+    "git": "git version 2.55.0.windows.3",
+    "node": "v22.16.0",
+    "gitkit": "0.1.4"
+  },
+  "referenceArm": "native",
+  "scenarios": [
+    {
+      "id": "issues",
+      "label": "精简 Issue 列表",
+      "prompt": "列出 GitHub example/project 最近5条未关闭 Issue 的编号和标题，仅返回 numbers 字符串数组和 titles 字符串数组。"
+    }
+  ],
+  "repeats": 3,
+  "parallelPairs": 1,
+  "results": [
+    {
+      "scenario": "issues",
+      "repeat": 1,
+      "arm": "native",
+      "success": true,
+      "usage": {
+        "input_tokens": 43501,
+        "cached_input_tokens": 13312,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 150,
+        "reasoning_output_tokens": 0
+      },
+      "endToEndMs": 21002.3883,
+      "turnMs": 18956.2166,
+      "calls": [
+        {
+          "type": "mcp_tool_call",
+          "server": "native",
+          "tool": "api",
+          "elapsedMs": 20.94850000000224,
+          "status": "completed"
+        }
+      ]
+    },
+    {
+      "scenario": "issues",
+      "repeat": 1,
+      "arm": "gitkit",
+      "success": true,
+      "usage": {
+        "input_tokens": 40642,
+        "cached_input_tokens": 26368,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 144,
+        "reasoning_output_tokens": 0
+      },
+      "endToEndMs": 24676.7136,
+      "turnMs": 22734.8468,
+      "calls": [
+        {
+          "type": "mcp_tool_call",
+          "server": "gitkit",
+          "tool": "issue",
+          "elapsedMs": 24.453400000002148,
+          "status": "completed"
+        }
+      ]
+    },
+    {
+      "scenario": "issues",
+      "repeat": 2,
+      "arm": "gitkit",
+      "success": true,
+      "usage": {
+        "input_tokens": 40750,
+        "cached_input_tokens": 26368,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 144,
+        "reasoning_output_tokens": 0
+      },
+      "endToEndMs": 19961.338000000003,
+      "turnMs": 18537.5512,
+      "calls": [
+        {
+          "type": "mcp_tool_call",
+          "server": "gitkit",
+          "tool": "issue",
+          "elapsedMs": 21.135499999996682,
+          "status": "completed"
+        }
+      ]
+    },
+    {
+      "scenario": "issues",
+      "repeat": 2,
+      "arm": "native",
+      "success": true,
+      "usage": {
+        "input_tokens": 44401,
+        "cached_input_tokens": 27136,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 153,
+        "reasoning_output_tokens": 0
+      },
+      "endToEndMs": 25102.2171,
+      "turnMs": 23615.2034,
+      "calls": [
+        {
+          "type": "mcp_tool_call",
+          "server": "native",
+          "tool": "api",
+          "elapsedMs": 21.115899999997055,
+          "status": "completed"
+        }
+      ]
+    },
+    {
+      "scenario": "issues",
+      "repeat": 3,
+      "arm": "native",
+      "success": true,
+      "usage": {
+        "input_tokens": 44360,
+        "cached_input_tokens": 27136,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 152,
+        "reasoning_output_tokens": 0
+      },
+      "endToEndMs": 22263.46519999999,
+      "turnMs": 21133.16799999999,
+      "calls": [
+        {
+          "type": "mcp_tool_call",
+          "server": "native",
+          "tool": "api",
+          "elapsedMs": 39.32820000000356,
+          "status": "completed"
+        }
+      ]
+    },
+    {
+      "scenario": "issues",
+      "repeat": 3,
+      "arm": "gitkit",
+      "success": true,
+      "usage": {
+        "input_tokens": 41512,
+        "cached_input_tokens": 13184,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 144,
+        "reasoning_output_tokens": 0
+      },
+      "endToEndMs": 23026.2206,
+      "turnMs": 21885.7485,
+      "calls": [
+        {
+          "type": "mcp_tool_call",
+          "server": "gitkit",
+          "tool": "issue",
+          "elapsedMs": 39.742599999997765,
+          "status": "completed"
+        }
+      ]
+    }
+  ]
+}
